@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
 from requests import Request, post
-import requests
 from .util import update_tokens, get_user_tokens
 from django.contrib.auth import logout as auth_logout
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
-CLIENT_ID = settings.SPOTIFY_CLIENT_ID
-CLIENT_SECRET = settings.SPOTIFY_CLIENT_SECRET
-REDIRECT_URI =  settings.SPOTIFY_REDIRECT_URI
+# Spotify API credentials
+SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
+SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
+SPOTIFY_REDIRECT_URI = os.getenv('SPOTIFY_REDIRECT_URI')
 
 # Create your views here.
 def auth_url(request):
@@ -16,21 +19,20 @@ def auth_url(request):
     url = Request('GET', 'https://accounts.spotify.com/authorize', params={
             'scope': scopes,
             'response_type': 'code',
-            'redirect_uri': REDIRECT_URI,
-            'client_id': CLIENT_ID
+            'redirect_uri': SPOTIFY_REDIRECT_URI,
+            'client_id': SPOTIFY_CLIENT_ID
         }).prepare().url
     return redirect(url)
 
-def spotify_callback(request, format=None):
+def spotify_callback(request):
     code = request.GET.get('code')
-    error = request.GET.get('error')
 
     response = post('https://accounts.spotify.com/api/token', data={
         'grant_type': 'authorization_code',
         'code': code,
-        'redirect_uri': REDIRECT_URI,
-        'client_id': CLIENT_ID,
-        'client_secret': CLIENT_SECRET
+        'redirect_uri': SPOTIFY_REDIRECT_URI,
+        'client_id': SPOTIFY_CLIENT_ID,
+        'client_secret': SPOTIFY_CLIENT_SECRET
     }).json()
 
     access_token = response.get('access_token')
@@ -45,8 +47,7 @@ def spotify_callback(request, format=None):
     if not request.session.exists(request.session.session_key):
         request.session.create()
 
-    update_tokens(
-        request.session.session_key, access_token, token_type, expires_in, refresh_token)
+    update_tokens(request.session.session_key, access_token, token_type, expires_in, refresh_token)
 
     return redirect('recently_played')
 

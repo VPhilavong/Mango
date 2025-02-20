@@ -44,7 +44,6 @@ This project is a web application that displays top artists and genres from Spot
 
 5. Run the Django development server:
     ```sh
-    cd spotiapp
     python manage.py runserver
     ```
 
