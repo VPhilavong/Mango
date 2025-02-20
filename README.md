@@ -16,16 +16,17 @@ This project is a web application that displays top artists and genres from Spot
 - HTML/CSS
 - JavaScript
 
-## Setup
+## Windows Setup
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/vphilavong/spotify-app.git
-    cd spotify-app
+    git clone https://github.com/vphilavong/Musilytic.git
+    cd Musilytic
     ```
 
 2. Create a virtual environment and activate it:
     ```sh
+    pip -m venv venv
     venv\Scripts\activate  # On Windows
     ```
 
@@ -35,7 +36,7 @@ This project is a web application that displays top artists and genres from Spot
     ```
 
 4. Set up your Spotify API credentials:
-    - Create a `.env` file in the root directory and add your Spotify API credentials:
+    - Create a `.env` file in the `app/` directory and add your Spotify API credentials:
       ```env
       SPOTIPY_CLIENT_ID='your_client_id'
       SPOTIPY_CLIENT_SECRET='your_client_secret'
@@ -44,6 +45,7 @@ This project is a web application that displays top artists and genres from Spot
 
 5. Run the Django development server:
     ```sh
+    # Ensure you are in app directory
     python manage.py runserver
     ```
 
