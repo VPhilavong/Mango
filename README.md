@@ -5,16 +5,13 @@ This project is a web application that displays top artists and genres from Spot
 ## Features
 
 - Display top artists
-- Display top genres with a transparent pie chart
-- Responsive design
+- Display top songs
 
 ## Technologies Used
 
-- Python
 - Django
-- Matplotlib
-- HTML/CSS
-- JavaScript
+- Next.js
+
 
 ## Windows Setup
 
@@ -26,7 +23,7 @@ This project is a web application that displays top artists and genres from Spot
 
 2. Create a virtual environment and activate it:
     ```sh
-    pip -m venv venv
+    python -m venv venv
     venv\Scripts\activate  # On Windows
     ```
 
@@ -43,15 +40,12 @@ This project is a web application that displays top artists and genres from Spot
       SPOTIPY_REDIRECT_URI='your_redirect_uri'
       ```
 
-5. Run the Django development server:
+5. Run start.py from root:
     ```sh
     # Ensure you are in app directory
-    python manage.py runserver
+    python start.py
     ```
 
-6. Open your browser and navigate to `http://127.0.0.1:8000/` to see the application.
+6. Open your browser and navigate to `http://127.0.0.1:3000/` to see the application.
 
-## Usage
 
-- Navigate to the homepage to see your top artists.
-- Click on the "Top Genres" link to see a pie chart of your top genres.
