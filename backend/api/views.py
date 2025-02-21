@@ -1,4 +1,4 @@
-from rest_framework.response import Response, Redirect
+from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from spotify.models import SpotifyToken
 from .serializer import ItemSerializer
