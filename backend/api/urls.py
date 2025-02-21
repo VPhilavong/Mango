@@ -3,5 +3,7 @@ from . import views
 
 urlpatterns = [
     path('login/', views.login),
-    path('callback/', views.callback)
+    path('callback/', views.callback),
+    path('getdata/', views.getData),
+    path('top_tracks/', views.top_tracks),
 ]

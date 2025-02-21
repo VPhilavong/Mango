@@ -41,10 +41,10 @@ try:
             python_executable = python_executable.strip().split("/")[-1]
 
     # Start the Django backend using the appropriate Python executable.
-    p1 = subprocess.Popen(f"{python_executable} manage.py runserver", cwd="./backend", shell=True)
+    p1 = subprocess.Popen(f"{python_executable} ./manage.py runserver", cwd="./backend", shell=True)
     
     # Start the Next.js frontend.
-    p2 = subprocess.Popen("npm run start", cwd="./frontend", shell=True)
+    p2 = subprocess.Popen("npm run dev", cwd="./frontend", shell=True)
     
     # Wait a few seconds for the servers to start (you may wish to implement a more robust check).
     time.sleep(5)
