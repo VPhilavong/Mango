@@ -3,38 +3,58 @@ import webbrowser
 import time
 import os
 import sys
-from signal import signal, SIGINT
+import signal
+
+# Global process variables
+p1 = None
+p2 = None
 
 def handle_shutdown(signum, frame):
     print("\nShutting down servers...")
-    # Kill processes on Windows
-    subprocess.run("taskkill /F /T /PID %i" % p1.pid, shell=True)
-    subprocess.run("taskkill /F /T /PID %i" % p2.pid, shell=True)
+    global p1, p2
+    # Terminate the Django backend (p1)
+    if p1:
+        if os.name == 'nt':
+            subprocess.run(f"taskkill /F /T /PID {p1.pid}", shell=True)
+        else:
+            os.kill(p1.pid, signal.SIGTERM)
+    # Terminate the Next.js frontend (p2)
+    if p2:
+        if os.name == 'nt':
+            subprocess.run(f"taskkill /F /T /PID {p2.pid}", shell=True)
+        else:
+            os.kill(p2.pid, signal.SIGTERM)
     sys.exit(0)
 
-# Set up shutdown handler
-signal(SIGINT, handle_shutdown)
+# Set up the shutdown handler for Ctrl+C
+signal.signal(signal.SIGINT, handle_shutdown)
 
 try:
-    # Activate virtual environment if exists
+    # Determine the correct Python executable from the virtual environment, if it exists.
+    python_executable = "python"  # fallback to system python
     if os.path.exists("venv"):
-        activate_script = os.path.join("venv", "Scripts", "activate")
-        subprocess.run(f"call {activate_script}", shell=True)
+        if os.name == 'nt':
+            python_executable = os.path.join("venv", "Scripts", "python.exe")
+            python_executable = python_executable.strip().split("\\")[-1]
+        else:
+            python_executable = os.path.join("venv", "bin", "python")
+            python_executable = python_executable.strip().split("/")[-1]
 
-    # Run Django Backend
-    p1 = subprocess.Popen("python manage.py runserver", cwd="./backend", shell=True)
+    # Start the Django backend using the appropriate Python executable.
+    p1 = subprocess.Popen(f"{python_executable} manage.py runserver", cwd="./backend", shell=True)
     
-    # Run Next Frontend
-    #subprocess.run("npm run build", cwd='./frontend', shell=True)  # Build
-    p2 = subprocess.Popen("npm run start", cwd='./frontend', shell=True)
+    # Start the Next.js frontend.
+    p2 = subprocess.Popen("npm run start", cwd="./frontend", shell=True)
     
-    # Wait for servers to start
+    # Wait a few seconds for the servers to start (you may wish to implement a more robust check).
     time.sleep(5)
     
-    # Open browser
+    # Open the frontend in the default browser.
     webbrowser.open('http://localhost:3000')
     
     print("Servers running... Press Ctrl+C to stop")
+    
+    # Wait for both processes to finish.
     p1.wait()
     p2.wait()
 
