@@ -1,68 +1,70 @@
-from django.shortcuts import render, redirect
-from django.conf import settings
-from requests import Request, post
-from .util import update_tokens, get_user_tokens
-from django.contrib.auth import logout as auth_logout
+import base64
+import requests
+from django.shortcuts import redirect
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from urllib.parse import urlencode
+import random, string
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # Spotify API credentials
-SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
-SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
-SPOTIFY_REDIRECT_URI = os.getenv('SPOTIFY_REDIRECT_URI')
+CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
+CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
+REDIRECT_URI = os.getenv('SPOTIFY_REDIRECT_URI')
 
-# Create your views here.
-def auth_url(request):
-    scopes = 'user-top-read user-library-read user-read-recently-played, user-read-currently-playing, playlist-modify-public playlist-modify-private'
-    url = Request('GET', 'https://accounts.spotify.com/authorize', params={
-            'scope': scopes,
-            'response_type': 'code',
-            'redirect_uri': SPOTIFY_REDIRECT_URI,
-            'client_id': SPOTIFY_CLIENT_ID
-        }).prepare().url
-    return redirect(url)
+# login endpoint
 
-def spotify_callback(request):
+@api_view(['GET'])
+def login(request):
+    state = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+
+    scope = ['user-top-read',
+              'user-library-read',
+              'user-read-recently-played',
+              'user-read-currently-playing',
+              'playlist-modify-public',
+              ]
+    print(REDIRECT_URI)
+    auth_url = "https://accounts.spotify.com/authorize?" + urlencode({
+        'response_type': 'code',
+        'client_id': CLIENT_ID,
+        'scope': ' '.join(scope),
+        'redirect_uri': REDIRECT_URI,
+        'state': state
+    })
+    return redirect(auth_url)
+
+
+@api_view(['GET'])
+def callback(request):
+    """
+    Handles the Spotify authentication callback, exchanges the authorization code for an access token.
+    """
     code = request.GET.get('code')
+    state = request.GET.get('state')
 
-    response = post('https://accounts.spotify.com/api/token', data={
-        'grant_type': 'authorization_code',
-        'code': code,
-        'redirect_uri': SPOTIFY_REDIRECT_URI,
-        'client_id': SPOTIFY_CLIENT_ID,
-        'client_secret': SPOTIFY_CLIENT_SECRET
-    }).json()
+    if state is None:
+        return redirect('/#' + urlencode({'error': 'state_mismatch'}))
 
-    access_token = response.get('access_token')
-    token_type = response.get('token_type')
-    refresh_token = response.get('refresh_token')
-    expires_in = response.get('expires_in')
-    error = response.get('error')
-    
-    if expires_in is None:
-        expires_in = 3600
-    
-    if not request.session.exists(request.session.session_key):
-        request.session.create()
+    auth_options = {
+        'url': 'https://accounts.spotify.com/api/token',
+        'data': {
+            'code': code,
+            'redirect_uri': REDIRECT_URI,
+            'grant_type': 'authorization_code'
+        },
+        'headers': {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
+        }
+    }
 
-    update_tokens(request.session.session_key, access_token, token_type, expires_in, refresh_token)
+    response = requests.post(auth_options['url'], data=auth_options['data'], headers=auth_options['headers'])
 
-    return redirect('recently_played')
-
-def logout(request):
-    # Clear specific session keys
-    keys_to_clear = ['access_token', 'token_type', 'expires_in', 'refresh_token']
-    for key in keys_to_clear:
-        if key in request.session:
-            del request.session[key]
-    
-    # Use Django's built-in logout function to clear the session
-    auth_logout(request)
-    
-    # Ensure the session is flushed
-    request.session.flush()
-    
-    # Render the custom logout page
-    return render(request, 'logout.html')
+    if response.status_code == 200:
+        return Response(response.json())  # Return the access token and other data
+    else:
+        return Response({'error': 'invalid_token'}, status=response.status_code)

@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'dashboard', 
     'spotify',
+    'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -124,10 +127,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 
-# Add these lines if they are not already present
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'dashboard/static'),
-]
-
 # Ensure the app's static files are collected
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Allow Next.js frontend
+CORS_ALLOWED_ORIGIN = [
+    "http://localhost:3000"
+]
+
