@@ -6,6 +6,9 @@ from rest_framework.decorators import api_view
 from urllib.parse import urlencode
 import random, string
 import os
+from django.utils import timezone
+from datetime import timedelta
+from .models import SpotifyToken
 
 # Spotify API credentials
 CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
@@ -46,6 +49,12 @@ def callback(request):
     if state is None:
         return redirect('/#' + urlencode({'error': 'state_mismatch'}))
 
+    # Ensure session is created
+    if not request.session.session_key:
+        request.session.create()
+    
+    user_session_key = request.session.session_key
+
     auth_options = {
         'url': 'https://accounts.spotify.com/api/token',
         'data': {
@@ -60,8 +69,29 @@ def callback(request):
     }
 
     response = requests.post(auth_options['url'], data=auth_options['data'], headers=auth_options['headers'])
-
+    
     if response.status_code == 200:
-        return Response(response.json())  # Return the access token and other data
-    else:
-        return Response({'error': 'invalid_token'}, status=response.status_code)
+        response_data = response.json()
+        
+        # Calculate token expiry time
+        expires_in = timezone.now() + timedelta(seconds=response_data.get('expires_in'))
+        
+        # Get or update token in database using the session key
+        token, created = SpotifyToken.objects.update_or_create(
+            user=user_session_key,  # Use the stored session key
+            defaults={
+                'access_token': response_data.get('access_token'),
+                'token_type': response_data.get('token_type'),
+                'refresh_token': response_data.get('refresh_token'),
+                'expires_in': expires_in
+            }
+        )
+        
+        # Store access token in session for easy access
+        request.session['spotify_token'] = response_data.get('access_token')
+        
+        # Redirect to frontend or success page
+        return redirect('http://localhost:3000/')
+    
+    # Handle error case
+    return redirect('/#' + urlencode({'error': 'invalid_token'}))
