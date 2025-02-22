@@ -80,10 +80,6 @@ docker-compose up --build
    - Verify CORS settings in Django's settings.py
    - Check frontend API calls use correct backend URL
 
-## License
-
-This project is licensed under the MIT License.
-
 ## Authors
 
 - Vincent Philavong
