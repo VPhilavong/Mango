@@ -4,6 +4,7 @@ import React from 'react';
 
 const LoginPage = () => {
   const handleSpotifyLogin = () => {
+    // This URL will work both in Docker and local development
     window.location.href = 'http://localhost:8000/login';
   };
 
