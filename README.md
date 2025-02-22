@@ -1,51 +1,89 @@
- Spotify App
+# Mango
 
-This project is a web application that displays top artists and genres from Spotify. It uses the Spotify API to fetch user data and visualize it in a user-friendly manner.
+A web application that visualizes your Spotify listening habits, displaying top artists, songs, and genres using the Spotify API.
 
 ## Features
 
-- Display top artists
-- Display top songs
+- OAuth2 Authentication with Spotify
+- Display Top Artists
+- Display Top Songs
+- Genre Analysis
 
-## Technologies Used
+## Tech Stack
 
-- Django
+### Backend
+- Django 5.1
+- Django REST Framework
+- Python 3.11
+- Spotify Web API
+
+### Frontend
 - Next.js
+- TypeScript
+- Tailwind CSS
 
+## Setup Instructions
 
-## Windows Setup
+### Prerequisites
+- Python 3.11+
+- Node.js 20+
+- Docker and Docker Compose (optional)
+- Spotify Developer Account
+
+### Environment Setup
 
 1. Clone the repository:
-    ```sh
-    git clone https://github.com/vphilavong/Musilytic.git
-    cd Musilytic
-    ```
+```bash
+git clone https://github.com/vphilavong/Musilytic.git
+cd Musilytic
+```
 
-2. Create a virtual environment and activate it:
-    ```sh
-    python -m venv venv
-    venv\Scripts\activate  # On Windows
-    ```
+2. Create a `.env` file in the root directory:
+```
+SPOTIFY_CLIENT_ID='your_client_id'
+SPOTIFY_CLIENT_SECRET='your_client_secret'
+SPOTIFY_REDIRECT_URI='http://localhost:8000/api/callback/'
+```
 
-3. Install the required packages:
-    ```sh
-    pip install -r requirements.txt
-    ```
+### Docker Setup
 
-4. Set up your Spotify API credentials:
-    - Create a `.env` file in the `app/` directory and add your Spotify API credentials:
-      ```env
-      SPOTIPY_CLIENT_ID='your_client_id'
-      SPOTIPY_CLIENT_SECRET='your_client_secret'
-      SPOTIPY_REDIRECT_URI='your_redirect_uri'
-      ```
+1. Build and start the containers:
+```bash
+docker-compose up --build
+```
 
-5. Run start.py from root:
-    ```sh
-    # Ensure you are in app directory
-    python start.py
-    ```
-
-6. Open your browser and navigate to `http://127.0.0.1:3000/` to see the application.
+2. Access the application:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:8000
 
 
+## Contributing
+
+1. Clone the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## Troubleshooting
+
+### Common Issues
+1. **Spotify Authentication Failed**
+   - Verify your Spotify API credentials
+   - Check REDIRECT_URI matches your Spotify app settings
+
+2. **Docker Issues**
+   - Ensure ports 3000 and 8000 are available
+   - Check Docker logs: `docker-compose logs`
+
+3. **CORS Issues**
+   - Verify CORS settings in Django's settings.py
+   - Check frontend API calls use correct backend URL
+
+## License
+
+This project is licensed under the MIT License.
+
+## Authors
+
+- Vincent Philavong
