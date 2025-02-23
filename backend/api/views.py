@@ -24,4 +24,4 @@ def top_tracks(request):
         response = requests.get('https://api.spotify.com/v1/me/top/tracks', headers=headers, params=params)
         return Response(response.json())
     except Exception as e:
-        return Response({'error': 'Failed to retrieve top artists'})
+        return Response({'error': 'Failed to retrieve top tracks'})
