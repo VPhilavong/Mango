@@ -19,9 +19,22 @@ def top_tracks(request):
     access_token = spotify.get_user_tokens(request.session.session_key).access_token
     time_range = request.GET.get('time_range', 'short_term')
     headers = {'Authorization': f'Bearer {access_token}'}
-    params = {'limit': 50, 'time_range': time_range}
+    params = {'limit': 5, 'time_range': time_range}
     try:
         response = requests.get('https://api.spotify.com/v1/me/top/tracks', headers=headers, params=params)
+        return Response(response.json())
+    except Exception as e:
+        return Response({'error': 'Failed to retrieve top tracks'})
+
+# Get top artist
+@api_view(['GET'])
+def top_artists(request):
+    access_token = spotify.get_user_tokens(request.session.session_key).access_token
+    time_range = request.GET.get('time_range', 'short_term')
+    headers = {'Authorization': f'Bearer {access_token}'}
+    params = {'limit': 5, 'time_range': time_range}
+    try:
+        response = requests.get('https://api.spotify.com/v1/me/top/artists', headers=headers, params=params)
         return Response(response.json())
     except Exception as e:
         return Response({'error': 'Failed to retrieve top tracks'})
