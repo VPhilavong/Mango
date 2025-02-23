@@ -27,7 +27,7 @@ def login(request):
               'user-read-currently-playing',
               'playlist-modify-public',
               ]
-    print(REDIRECT_URI)
+
     auth_url = "https://accounts.spotify.com/authorize?" + urlencode({
         'response_type': 'code',
         'client_id': CLIENT_ID,
@@ -69,7 +69,7 @@ def callback(request):
     }
 
     response = requests.post(auth_options['url'], data=auth_options['data'], headers=auth_options['headers'])
-    
+    # Setting Up
     if response.status_code == 200:
         response_data = response.json()
         
