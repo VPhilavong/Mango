@@ -1,4 +1,4 @@
-# Mango
+# RadioReel
 
 A web application that visualizes your Spotify listening habits, displaying top artists, songs, and genres using the Spotify API.
 
