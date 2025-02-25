@@ -12,7 +12,6 @@ def getData(request):
     serializer = ItemSerializer(items, many = True)
     return Response(serializer.data)
 
-
 # Get top tracks
 @api_view(['GET'])
 def top_tracks(request):
@@ -61,3 +60,12 @@ def top_genres(request):
     genres = {genre: index + 1 for index, (genre, count) in enumerate(sorted_genres)}
 
     return Response(genres)
+
+@api_view(['GET'])
+def user_pfp(request):
+    access_token = spotify.get_user_tokens(request.session.session_key).access_token  # Ensure access token retrieval is correct
+
+    headers = {'Authorization': f'Bearer {access_token}'}
+    response = requests.get('https://api.spotify.com/v1/me', headers=headers)
+
+    return response.json()['images'][0]['url']
